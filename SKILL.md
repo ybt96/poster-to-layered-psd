@@ -106,6 +106,30 @@ SamAutomaticMaskGenerator 参数：points_per_side=32, pred_iou_thresh=0.86, sta
 - 照片层本身是位图不能再放大；海报其余部分矢量
 - 自动拆解是"设计师起点"，不是完美成品
 
+## 步骤6（可选）：可编辑文字层
+
+用户要"文字能改"时用。PSD 格式开源库写不了真文字层，所以可编辑文字走 SVG/AI 交付：
+
+1. **OCR**：macOS 用 `scripts/ocr_text.swift`（原生 Vision，`swift ocr_text.swift 图.jpg out.json`，中文准、零安装）；跨平台用 `scripts/ocr_text_paddle.py`（PaddleOCR）
+2. **叠文字层**：`python3 scripts/build_editable_svg.py 原图.jpg 矢量海报.svg ocr.json 输出.svg [--corrections fix.json]`
+3. **关键设计**：文字元素 `fill-opacity="0"` 叠在原矢量文字上——**视觉零影响（渲染diff=0已验证），Illustrator 里选中即改**。不要用色块补丁盖原文字：渐变/复杂背景上补丁必穿帮
+4. textLength + lengthAdjust="spacingAndGlyphs" 强制对齐原文宽度；文字色取 bbox 内暗/饱和像素中位数；字号≈0.92×bbox高
+5. **OCR 后必须人工核对错字**（Vision 对艺术字会认错，如"玩一会儿"→"玩一会八"），用 --corrections JSON 修正常见错字
+6. 交付时附 OCR 全量 JSON 清单，设计师对照改文案
+
+## Windows 适配
+
+整条 pipeline 除 OCR 外均跨平台，Windows 用户注意：
+
+| 环节 | macOS | Windows |
+|---|---|---|
+| OCR | `ocr_text.swift`（Vision） | `ocr_text_paddle.py`（`pip install paddleocr paddlepaddle`） |
+| SVG渲染/PDF | `brew install librsvg` | `winget install GNOME.librsvg`，或 pip 装 cairosvg（**Windows 版自带 cairo DLL，没有 macOS 的 SIP 坑**） |
+| SAM | MPS + 必打补丁 | CUDA/CPU 直接跑，**不需要 MPS 补丁** |
+| 其余 | — | vtracer/psd-tools/opencv 都有 Windows wheel |
+
+Windows 控制台中文乱码：先 `chcp 65001`；路径含中文时 python 加 `-X utf8`。
+
 ## 交付清单惯例
 
 桌面交付：`*-矢量海报.svg` / `.pdf` / `*-分层源文件.psd`。回复附：文件表（名称+大小+用途）、PSD图层结构树、验证数字（composite diff=0、二维码解码比对）、局限说明，预览图用 MEDIA: 发出。

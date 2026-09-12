@@ -24,6 +24,9 @@ pip install -r requirements.txt   # A-C档；D档需另装 torch + segment-anyth
 | B 要进 Illustrator | + PDF | + librsvg | +1 分钟 |
 | C 要 PSD 改图 | + 分层 PSD | + psd-tools, opencv | +2 分钟 |
 | D 每个元素单独一层 | + SAM 元素层 | + torch, segment-anything | ~30 分钟 |
+| E 文字可编辑 | + 透明可编辑文字层 SVG | + OCR（macOS Vision 或 PaddleOCR） | +2 分钟 |
+
+**平台支持**：macOS 全流程已验证；Windows 除 OCR 换 PaddleOCR、librsvg 换 winget 安装外均一致（SAM 在 CUDA/CPU 上不需要 MPS 补丁）。详见 SKILL.md「Windows 适配」。
 
 ## 快速开始
 
