@@ -1,0 +1,15 @@
+# A档: 矢量化
+vtracer>=0.6
+Pillow
+numpy
+
+# B档: SVG渲染/PDF导出（系统装: brew install librsvg）
+
+# C档: 分层PSD
+psd-tools>=1.11
+opencv-python-headless
+
+# D档: SAM元素拆解（可选，+2GB）
+# torch
+# torchvision
+# segment-anything

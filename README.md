@@ -4,6 +4,18 @@
 
 已端到端验证：3150×7874 营销长图 → 75MB 矢量 SVG（文字无限放大锐利）+ 129 层 PSD（合成与原图逐像素一致，diff=0），二维码矢量化后实测解码一致。
 
+## 效果预览
+
+| 原始海报 | SAM 元素拆解（120+ 独立层） | 矢量化标题 2 倍放大 |
+|---|---|---|
+| ![poster](docs/preview-poster.jpg) | ![sam](docs/sam-elements.jpg) | ![2x](docs/title-2x-zoom.png) |
+
+## 安装
+
+```bash
+pip install -r requirements.txt   # A-C档；D档需另装 torch + segment-anything
+```
+
 ## 按需求选深度（可停在任一档）
 
 | 档位 | 交付 | 依赖 | 耗时 |
