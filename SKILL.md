@@ -110,6 +110,12 @@ SamAutomaticMaskGenerator 参数：points_per_side=32, pred_iou_thresh=0.86, sta
 
 桌面交付：`*-矢量海报.svg` / `.pdf` / `*-分层源文件.psd`。回复附：文件表（名称+大小+用途）、PSD图层结构树、验证数字（composite diff=0、二维码解码比对）、局限说明，预览图用 MEDIA: 发出。
 
+## 体积优化（交付大文件时做）
+
+- **SVG**：`npx -y svgo in.svg -o out.svg --config svgo.config.mjs`（svgo 4 无 --disable 参数，用 config 文件；preset-default 即可，removeViewBox 已不在默认集）。vtracer 高保真 SVG 可减约 38%，渲染 diff≈0.5 可忽略。**压缩后必须重渲染 + 重解码二维码验证**。
+- **PSD**：`PixelLayer.frompil(..., compression=Compression.ZIP_WITH_PREDICTION)`，比默认 RLE 再省约 37%，像素不变（composite diff 仍为 0）。
+- PDF 用压缩后的 SVG 重新生成，跟着变小。
+
 ## 验证清单（交付前必过）
 
 - [ ] SVG 1:1 + 2x 渲染目检：标题锐利/照片无接缝/二维码清晰
