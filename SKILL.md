@@ -46,7 +46,7 @@ python3 scripts/vectorize_svg.py 输入.jpg 输出.svg     # 不需要任何配�
 - 判断规则：**纯平涂/文字/Logo → 直接全矢量**；**含真实照片 → 加 --photos 分离嵌入**（否则照片会糊成色块）
 
 用 `scripts/vectorize_svg.py 输入图 输出.svg --photos boxes.json`：
-- vtracer 参数：colormode=color, hierarchical='stacked', mode='spline', color_precision=7, path_precision=2（2500万像素图约1分钟，SVG约70MB）
+- vtracer 参数：**filter_speckle=2, color_precision=8, layer_difference=4**, hierarchical='stacked', mode='spline', path_precision=2。**这是修过"元素背景色丢失"的高保真组合**——默认的 layer_difference=16 会把相近色层合并导致天空洗白/白云变蓝/装饰底色丢失，filter_speckle=4 会吞小色块。代价是 SVG 变大 2.3 倍（69MB→161MB），svgo 压缩后约 92MB。25MP 图矢量化约 2.5 分钟
 - 照片区裁原图 PNG，边缘做 alpha 羽化渐变，以 `<image href="data:image/png;base64,...">` 嵌入SVG压在矢量层上——羽化区是"同内容的矢量↔位图渐变"，无接缝
 
 **坑：libxml2 单属性 10MB 上限**。base64 超过约 7MB 的图必须切成多片分别嵌入（每片≤3MB原图），且只写 `href` 不要 xlink:href+href 双写，否则 rsvg 报 "Premature end of data"。
@@ -112,7 +112,7 @@ SamAutomaticMaskGenerator 参数：points_per_side=32, pred_iou_thresh=0.86, sta
 
 ## 体积优化（交付大文件时做）
 
-- **SVG**：`npx -y svgo in.svg -o out.svg --config svgo.config.mjs`（svgo 4 无 --disable 参数，用 config 文件；preset-default 即可，removeViewBox 已不在默认集）。vtracer 高保真 SVG 可减约 38%，渲染 diff≈0.5 可忽略。**压缩后必须重渲染 + 重解码二维码验证**。
+- **SVG**：`NODE_OPTIONS=--max-old-space-size=12288 npx -y svgo in.svg -o out.svg --config svgo.config.mjs`（svgo 4 无 --disable 参数，用 config 文件；preset-default 即可，removeViewBox 已不在默认集；**>100MB 的 SVG 不加 heap 参数会 OOM 崩溃**）。高保真 SVG 可减约 45%，渲染 diff≈0.5 可忽略。**压缩后必须重渲染 + 重解码二维码验证**。
 - **PSD**：`PixelLayer.frompil(..., compression=Compression.ZIP_WITH_PREDICTION)`，比默认 RLE 再省约 37%，像素不变（composite diff 仍为 0）。
 - PDF 用压缩后的 SVG 重新生成，跟着变小。
 
